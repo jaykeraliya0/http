@@ -35,7 +35,7 @@ const server = net.createServer(async (socket) => {
       const dir = process.argv[2] === "--directory" ? process.argv[3] : null;
       const fileName = reqPath.split("/files/")[1];
       const filePath = path.join(dir, fileName);
-      const fileContent = request.split("\r\n")[1];
+      const fileContent = request.split("\r\n\r\n")[1];
       fs.writeFileSync(filePath, fileContent);
 
       socket.write("HTTP/1.1 201 Created \r\n\r\n");
