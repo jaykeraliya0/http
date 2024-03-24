@@ -7,6 +7,7 @@ const server = net.createServer(async (socket) => {
     const request = data.toString();
     console.log(request);
     const reqPath = data.toString().split("\r\n")[0].split(" ")[1];
+    const reqMethod = data.toString().split("\r\n")[0].split(" ")[0];
 
     if (reqPath === "/") {
       socket.write("HTTP/1.1 200 OK \r\n\r\n");
@@ -18,7 +19,7 @@ const server = net.createServer(async (socket) => {
       const userAgent = request.split("User-Agent: ")[1].split("\r\n")[0];
       const response = `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${userAgent.length}\r\n\r\n${userAgent}`;
       socket.write(response);
-    } else if (reqPath.startsWith("/files/")) {
+    } else if (reqPath.startsWith("/files/") && reqMethod === "GET") {
       const dir = process.argv[2] === "--directory" ? process.argv[3] : null;
       const fileName = reqPath.split("/files/")[1];
       const filePath = path.join(dir, fileName);
@@ -30,6 +31,14 @@ const server = net.createServer(async (socket) => {
       } else {
         socket.write("HTTP/1.1 404 Not Found \r\n\r\n");
       }
+    } else if (reqPath.startsWith("/files/") && reqMethod === "POST") {
+      const dir = process.argv[2] === "--directory" ? process.argv[3] : null;
+      const fileName = reqPath.split("/files/")[1];
+      const filePath = path.join(dir, fileName);
+      const fileContent = request.split("\r\n")[0];
+      fs.writeFileSync(filePath, fileContent);
+
+      socket.write("HTTP/1.1 201 Created \r\n\r\n");
     } else {
       socket.write("HTTP/1.1 404 Not Found \r\n\r\n");
     }
