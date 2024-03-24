@@ -3,12 +3,17 @@ const net = require("net");
 const server = net.createServer((socket) => {
   socket.on("data", (data) => {
     const request = data.toString();
+    const message = request.split(" ")[1].split("/")[2];
 
-    console.log("Request: ", request);
+    console.log(request);
 
     request.split(" ")[1] === "/"
-      ? socket.write("HTTP/1.1 200 OK \n\r\n\r")
-      : socket.write("HTTP/1.1 404 Not Found \n\r\n\r");
+      ? socket.write("HTTP/1.1 200 OK\r\n")
+      : request.split(" ")[1].split("/")[1] === "echo"
+      ? socket.write(
+          "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n" + message
+        )
+      : socket.write("HTTP/1.1 404 Not Found\r\n");
   });
 
   socket.on("close", () => {
