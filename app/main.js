@@ -8,10 +8,10 @@ const server = net.createServer((socket) => {
     console.log(request);
 
     request.split(" ")[1] === "/"
-      ? socket.write("HTTP/1.1 200 OK\r\n")
+      ? socket.write("HTTP/1.1 200 OK\r\n\r\n")
       : request.split(" ")[1].split("/")[1] === "echo"
       ? socket.write(
-          "HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\n\r\n" + message
+          `HTTP/1.1 200 OK\r\nContent-Type: text/plain\r\nContent-Length: ${message.length}\r\n\r\n${message}`
         )
       : socket.write("HTTP/1.1 404 Not Found\r\n");
   });
